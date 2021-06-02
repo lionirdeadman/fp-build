@@ -8,19 +8,20 @@ the appropriate extension (json, yaml, yml).
 
 Example
 ```sh
-fp-build com.discordapp.Discord
+fp-build com.discordapp.Discord.json
 ```
 
 ## What does it do?
 
-There are 4 steps :
+There are 7 steps :
 
 1) Checks that there is an argument pointing to an existing file
 2) Checks that XDG_CACHE_HOME is set and if not, assumes $HOME/.cache
 3) git submodule update --init to not forget about shared-modules
 4) flatpak-builder download-only and saves those into $XDG_CACHE_HOME/flatpak-builder
-5) flatpak-builder builds and install, the builddir is $XDG_CACHE_HOME/flatpak-builder-builddir/com.myApp/ and repo is $XDG_CACHE_HOME/flatpak-builder-repo/com.my.App/
-6) Various checks like the appid in the desktop file is correct, checks that a 128x128 icon is present and that the appstream data is correct
+5) flatpak-builder builds and saves the builddir is $XDG_CACHE_HOME/flatpak-builder-builddir/com.myApp/
+6) flatpak-builder install and saves the repo is $XDG_CACHE_HOME/flatpak-builder-repo/com.my.App/
+7) Various checks like the appid in the desktop file is correct, checks that a 128x128 icon is present and that the appstream data is correct
 
 ## Why are things saved in $XDG_CACHE_HOME?
 
