@@ -38,9 +38,8 @@ then
 fi
 
 if ! flatpak-builder \
-    --verbose --sandbox --user --install \
+    --verbose --sandbox --user \
     --bundle-sources --force-clean --ccache \
-    --repo="$XDG_CACHE_HOME/flatpak-builder-repo/${1%.*}" \
     --install-deps-from=flathub \
     --default-branch=localtest \
     --state-dir="$XDG_CACHE_HOME/flatpak-builder" \
@@ -48,6 +47,17 @@ if ! flatpak-builder \
     "$XDG_CACHE_HOME/flatpak-builder-builddir/${1%.*}" "$1"
 then
     echo "Build failed" >&2
+    exit 1
+fi
+
+if ! flatpak-builder \
+    --user --install --force-clean \
+    --repo="$XDG_CACHE_HOME/flatpak-builder-repo/" \
+    --default-branch=localtest \
+    --state-dir="$XDG_CACHE_HOME/flatpak-builder" \
+    "$XDG_CACHE_HOME/flatpak-builder-builddir/${1%.*}" "$1"
+then
+    echo "Committing or install failed" >&2
     exit 1
 fi
 
