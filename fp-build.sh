@@ -33,7 +33,7 @@ if ! flatpak-builder \
     --state-dir="$XDG_CACHE_HOME/flatpak-builder" \
     "$XDG_CACHE_HOME/flatpak-builder-builddir/${1%.*}" "$1"
 then
-    echo "Download failed" >&2
+    echo "Download failed!" >&2
     exit 1
 fi
 
@@ -46,7 +46,7 @@ if ! flatpak-builder \
     --extra-sources="$XDG_CACHE_HOME/flatpak-builder/downloads" \
     "$XDG_CACHE_HOME/flatpak-builder-builddir/${1%.*}" "$1"
 then
-    echo "Build failed" >&2
+    echo "Build failed!" >&2
     exit 1
 fi
 
@@ -63,42 +63,34 @@ fi
 
 flathub_json=$(dirname "$1")/flathub.json
 
-echo "---"
-echo "Appid check"
-echo "---"
 if zgrep -q "<id>${1%.*}\(\.\w\+\)*\(.desktop\)\?</id>" "$XDG_CACHE_HOME/flatpak-builder-builddir/${1%.*}/files/share/app-info/xmls/${1%.*}.xml.gz"
 then
-    echo "Pass!"
+    echo "---"
+    echo "AppID check.. passed!"
 else
-    echo "Fail!" >&2
+    echo "---"
+    echo "AppID check.. failed!" >&2
 fi
 
 if [ -e "$flathub_json" ] && python3 -c 'import sys, json; sys.exit(not json.load(sys.stdin).get("skip-icons-check", False))' < "$flathub_json"
 then
-    echo "---"
-    echo "Skipping icon check"
-    echo "---"
+    echo "Skipping icon check.."
 else
-    echo "---"
-    echo "128x128 icon check"
-    echo "---"
     if zgrep "<icon type=\\'remote\\'>" "$XDG_CACHE_HOME/flatpak-builder-builddir/${1%.*}/files/share/app-info/xmls/${1%.*}.xml.gz" || test -f "$XDG_CACHE_HOME/flatpak-builder-builddir/${1%.*}/files/share/app-info/icons/flatpak/128x128/${1%.*}.png"
     then
-        echo "Pass!"
+        echo "128x128 icon check.. passed!"
     else
-        echo "Fail!" >&2
+        echo "128x128 icon check.. failed!" >&2
     fi
 fi
 
 if [ -e "$flathub_json" ] && python3 -c 'import sys, json; sys.exit(not json.load(sys.stdin).get("skip-appstream-check", False))' < "$flathub_json"
 then
-    echo "---"
     echo "Skipping Appstream check"
     echo "---"
 else
-    echo "---"
     echo "Appstream check"
-    echo "---"
     flatpak run org.freedesktop.appstream-glib validate "$XDG_CACHE_HOME/flatpak-builder-builddir/${1%.*}/files/share/appdata/${1%.*}.appdata.xml"
+    echo "---"
 fi
 
