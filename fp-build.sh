@@ -24,8 +24,6 @@ fi
 
 XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 
-git submodule update --init
-
 if ! flatpak-builder \
     --download-only --no-shallow-clone \
     --force-clean --allow-missing-runtimes \
