@@ -16,15 +16,43 @@
 # License along with this library. If not, see <https://www.gnu.org/licenses/>.
 #
 
+# Our only argument is a flatpak manifest.
+if ! [ "$1" ]
+then
+    echo "Specify a flatpak manifest" >&2
+    exit
+fi
+
+# Ensure the manifest extension is valid.
+# sh exits when quotes are used here for some reason.
+if [ $1 != *.yml ] && [ $1 != *.yaml ] && [ $1 != *.json ]
+then
+    echo "Specify a valid flatpak manifest extension" >&2
+    exit
+fi
+
+# Make sure the manifest exists
 if ! [ -f "$1" ]
 then
     echo "$1 doesn't exist" >&2
     exit
 fi
 
-XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+# We want to make sure we have all the needed binaries available.
+REQUIREMENTS=('flatpak' 'zgrep' 'python3')
+for binary in ${REQUIREMENTS[@]}; do
+    command -v ${binary} > /dev/null 2>&1 || {
+      echo "Install ${binary}}" >&2
+      exit
+    }
+done
 
-if ! flatpak-builder \
+XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+# Why type the whole command when we can just use a variable?
+# Also helps for if someone needs to temporarily set a custom binary.
+FLATPAK_BUILDER="flatpak run org.flatpak.Builder"
+
+if ! ${FLATPAK_BUILDER} \
     --download-only --no-shallow-clone \
     --force-clean --allow-missing-runtimes \
     --ccache \
@@ -35,7 +63,7 @@ then
     exit 1
 fi
 
-if ! flatpak-builder \
+if ! ${FLATPAK_BUILDER} \
     --verbose --sandbox --user \
     --bundle-sources --force-clean --ccache \
     --install-deps-from=flathub \
@@ -48,7 +76,7 @@ then
     exit 1
 fi
 
-if ! flatpak-builder \
+if ! ${FLATPAK_BUILDER} \
     --user --install --force-clean \
     --repo="$XDG_CACHE_HOME/flatpak-builder-repo/" \
     --default-branch=localtest \
