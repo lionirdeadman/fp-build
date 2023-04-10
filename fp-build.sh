@@ -19,7 +19,7 @@
 # Our only argument is a flatpak manifest.
 if ! [ "$1" ]
 then
-    echo "Specify a flatpak manifest"
+    echo "Specify a flatpak manifest" >&2
     exit
 fi
 
@@ -27,14 +27,14 @@ fi
 # sh exits when quotes are used here for some reason.
 if [ $1 != *.yml ] && [ $1 != *.yaml ] && [ $1 != *.json ]
 then
-    echo "Specify a valid flatpak manifest extension"
+    echo "Specify a valid flatpak manifest extension" >&2
     exit
 fi
 
 # Make sure the manifest exists
 if ! [ -f "$1" ]
 then
-    echo "$1 doesn't exist"
+    echo "$1 doesn't exist" >&2
     exit
 fi
 
@@ -42,7 +42,7 @@ fi
 REQUIREMENTS=('flatpak' 'zgrep' 'python3')
 for binary in ${REQUIREMENTS[@]}; do
     command -v ${binary} > /dev/null 2>&1 || {
-      echo "Install ${binary}}"
+      echo "Install ${binary}}" >&2
       exit
     }
 done
